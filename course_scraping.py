@@ -3,28 +3,36 @@
 from selenium import webdriver # ver 4.4.3
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from bs4 import BeautifulSoup
 import time
-
-##s = Service('/home/tony/Downloads/chromedriver') # ver ChromeDriver 104.0.5112.79
-##driver = webdriver.Chrome(service=s)
+import requests
+import re # regular expression
 
 service = Service('/home/tony/Downloads/chromedriver') # ver ChromeDriver 104.0.5112.79
 service.start()
 driver = webdriver.Remote(service.service_url)
 
-url = "https://www.deanza.edu/schedule/"
+url = "https://www.deanza.edu/schedule/" # De Anza College
 driver.get(url)
 
-##driver.find_element(By.NAME,"tbSearch").send_keys("Data Abstraction and Structures")
 search_box = driver.find_element(By.ID,"tbSearch")
-search_box.send_keys("Data Abstraction and Structures")
+search_box.send_keys("Data Abstraction and Structures") # Search for all Data Abstraction and Structures courses
 search_button = driver.find_element(By.CSS_SELECTOR,"button.btn.dark.full")
 search_button.click()
-print(driver.title)
 time.sleep(5) # seconds
-##driver.close() # close tab
-driver.quit() # close browser
 
-##time.sleep(10)
+print(driver.title)
+
+page = driver.execute_script("return document.body.innerHTML;")
+doc = BeautifulSoup(page, "html.parser")
+tbody = doc.tbody
+trs = tbody.contents
+
+# Print info for each course section
+for tr in trs[1::2]:
+    for td in tr.find_all("td"):
+        print(td.text)
+
 ##driver.refresh()
-##driver.close()
+##driver.close() # close tab
+##driver.quit() # close browser
